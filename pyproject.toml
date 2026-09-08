@@ -15,8 +15,11 @@ dependencies = [
 bank-statements = "bank_statements:main"
 
 [build-system]
-requires = ["uv_build>=0.12.9,<0.13.0"]
-build-backend = "uv_build"
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bank_statements"]
 
 [dependency-groups]
 dev = [
