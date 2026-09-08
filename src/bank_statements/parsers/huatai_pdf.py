@@ -2,15 +2,15 @@
 
 These statements are a single wide table whose columns include
 ``证券代码``, ``业务标志``, ``发生金额``, ``发生数量``, ``成交均价`` and
-``印花税``.  The trade date is not present in the table itself and is taken
-from the file name (e.g. ``OtherAT_Huatai_2026.08.26 ...pdf``).
+``印花税``.  Per the project README, no ``date`` field is emitted for these
+statements.
 """
 
 from __future__ import annotations
 
 import pymupdf
 
-from ..records import clean, build_record, date_from_filename, to_float, to_int
+from ..records import clean, build_record, to_float, to_int
 
 # ``find_tables()`` prints an installation suggestion to stdout; silence it so
 # the CLI's JSON output stays clean.
@@ -25,7 +25,6 @@ def huatai_pdf2tx(filename: str) -> list[dict]:
         header = [clean(c) for c in rows[0]]
         col = {name: i for i, name in enumerate(header)}
 
-        date = date_from_filename(filename)
         records: list[dict] = []
         for row in rows[1:]:
             cells = [clean(c) for c in row]
@@ -37,7 +36,7 @@ def huatai_pdf2tx(filename: str) -> list[dict]:
 
             records.append(build_record(
                 side=side,
-                date=date,
+                date=None,
                 ticker=cells[col["证券代码"]],
                 volume=abs(to_int(cells[col["发生数量"]])),
                 price=to_float(cells[col["成交均价"]]),

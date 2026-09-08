@@ -12,7 +12,6 @@
         [
             {
             "type": "S",
-            "date": "2026-08-26",
             "ticker": "002438",
             "volume": 327100,
             "price": 13.938,
@@ -22,7 +21,6 @@
             },
             {
             "type": "S",
-            "date": "2026-08-26",
             "ticker": "002270",
             "volume": 562000,
             "price": 19.382,
@@ -33,13 +31,11 @@
         ]
 
     其中的 trans_fee 由 price * volume - net_amount - tax 或 net_amount - price * volume - tax (分别对应 Sell/Buy 的情形) 计算而来。
-    date 字段则由文件名中的日期来生成。
 
     另一个示例文件名为 "OtherAT_Huatai_2026.05.14 中际旭创.pdf"，应返回的列表如下：
         [
             {
             "type": "B",
-            "date": "2026-05-14",
             "ticker": "300308",
             "volume": 9400,
             "price": 1055.351,

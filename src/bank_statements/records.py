@@ -1,10 +1,10 @@
 """Unified trade-record schema and shared parsing utilities.
 
-Every broker/bank parser returns a ``list[dict]``.  The core keys (always
-present, in this order) are::
+Every broker/bank parser returns a ``list[dict]``.  The core keys (in this
+order) are::
 
     "type"       # "B" | "S"
-    "date"       # trade date, "YYYY-MM-DD"
+    "date"       # trade date, "YYYY-MM-DD" (omitted by the Huatai parser)
     "ticker"     # security code / identifier
     "volume"     # number of shares/units (int)
     "price"      # unit price (float)
@@ -103,19 +103,7 @@ def parse_date(value: str) -> str:
     raise ValueError(f"cannot parse date: {value!r}")
 
 
-def date_from_filename(filename: str) -> str:
-    """Extract a ``YYYY-MM-DD`` date embedded in a file name.
-
-    Accepts ``2026.08.26``, ``2026.05.14`` and even the typo'd ``026.08.26``.
-    """
-    match = re.search(r"(\d{2,4})\.(\d{1,2})\.(\d{1,2})", filename)
-    if not match:
-        raise ValueError(f"no date found in filename: {filename!r}")
-    year, month, day = match.groups()
-    return f"{2000 + (int(year) % 100):04d}-{int(month):02d}-{int(day):02d}"
-
-
-def build_record(side: str, date: str, ticker: str, volume: int, price: float,
+def build_record(side: str, date: str | None, ticker: str, volume: int, price: float,
                  net_amount: float, tax: float, *,
                  settlement_date: str | None = None,
                  broker: str | None = None,
@@ -123,9 +111,11 @@ def build_record(side: str, date: str, ticker: str, volume: int, price: float,
                  trans_fee: float | None = None) -> dict:
     """Assemble a single trade record.
 
-    ``trans_fee`` is derived from the other fields unless an explicit value is
-    passed.  ``settlement_date``, ``sec_name`` and ``broker`` are optional
-    extras some brokers provide.
+    Pass ``date=None`` to omit the ``date`` key (used by the Huatai A-share
+    parser, whose statements carry no trade date).  ``trans_fee`` is derived
+    from the other fields unless an explicit value is passed.
+    ``settlement_date``, ``sec_name`` and ``broker`` are optional extras some
+    brokers provide.
     """
     net_amount = round2(net_amount)
     tax = round2(tax)
@@ -138,7 +128,8 @@ def build_record(side: str, date: str, ticker: str, volume: int, price: float,
     if broker is not None:
         record["broker"] = broker
     record["type"] = side
-    record["date"] = date
+    if date is not None:
+        record["date"] = date
     if settlement_date is not None:
         record["settlement_date"] = settlement_date
     if sec_name is not None:
