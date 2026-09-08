@@ -41,7 +41,8 @@ def _parse_block(side: str, block: str) -> dict:
     settlement_date = parse_date(dates.group(1))
     date = parse_date(dates.group(2))
 
-    ticker = f"{re.search(r'Security[\s\S]*?\((\d+)\)', block).group(1)}.HK"
+    code = re.search(r"Security[\s\S]*?\((\d+)\)", block).group(1)
+    ticker = f"{code}.HK"
     volume = to_int(re.search(r"([\d,]+) at [\d.]+", block).group(1))
     amount = round2(to_float(re.search(r"Total amount\s*HKD\s*([\d,.]+)", block).group(1)))
     trans_fee = round2(to_float(
